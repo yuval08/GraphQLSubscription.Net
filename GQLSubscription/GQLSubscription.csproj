@@ -2,6 +2,11 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latestmajor</LangVersion>
+        <Version>0.0.1</Version>
+        <Authors>Yuval Lerner</Authors>
+        <Company>Independent Contractor</Company>
+        <Copyright>GPL-3.0</Copyright>
     </PropertyGroup>
 
     <ItemGroup>
