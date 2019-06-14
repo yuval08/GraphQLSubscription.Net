@@ -1,8 +1,8 @@
 using Newtonsoft.Json.Linq;
 
 namespace GQLSubscription {
-    public class Response {
-        public Response(JToken data) => Data = data;
+    public class Receive {
+        public Receive(JToken data) => Data = data;
 
         protected JToken Data { get; }
         

@@ -127,7 +127,7 @@ namespace GQLSubscription {
                 var json         = JObject.Parse(resultString);
                 switch ((string) json["type"]) {
                     case ReturnTypeData:
-                        OnResponse?.Invoke(new Response(json["payload"]["data"]));
+                        OnReceive?.Invoke(new Receive(json["payload"]["data"]));
                         break;
                     case ReturnTypeError:
                         isRunning = false;
@@ -176,7 +176,7 @@ namespace GQLSubscription {
 
         public Action OnComplete;
 
-        public Action<Response> OnResponse;
+        public Action<Receive> OnReceive;
 
         public Action<Error> OnError;
     }

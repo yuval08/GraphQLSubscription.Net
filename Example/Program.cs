@@ -38,7 +38,7 @@ namespace Example {
                     }
                 };
                 //Catch when the subscription is getting a response
-                subscription.OnResponse += response => Console.WriteLine(response.GetDataFieldAs<Data>("getData").Entry);
+                subscription.OnReceive += response => Console.WriteLine(response.GetDataFieldAs<Data>("getData").Entry);
                 subscription.Connect();
 
                 Console.Write("Press any key to disconnection");
