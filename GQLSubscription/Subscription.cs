@@ -33,6 +33,12 @@ namespace GQLSubscription {
         private const string ReturnTypeError    = "error";
         private const string ReturnTypeComplete = "complete";
 
+        public Action OnComplete;
+
+        public Action<Receive> OnReceive;
+
+        public Action<Error> OnError;
+
         /// <summary>
         /// Constructor for the subscription class
         /// </summary>
@@ -124,6 +130,7 @@ namespace GQLSubscription {
             while (IsAlive() && isRunning) {
                 var result       = await socket.ReceiveAsync(arraySegment, default);
                 var resultString = Encoding.UTF8.GetString(arraySegment.Array, 0, result.Count);
+                if (string.IsNullOrWhiteSpace(resultString)) continue;
                 var json         = JObject.Parse(resultString);
                 switch ((string) json["type"]) {
                     case ReturnTypeData:
@@ -132,52 +139,46 @@ namespace GQLSubscription {
                     case ReturnTypeError:
                         isRunning = false;
                         OnError?.Invoke(new Error(GQLSubscriptionErrorType.GQLError, json["payload"].ToList().Select(t => (string) t["message"]).ToArray()));
-                        await Disconnect();
+                        Disconnect();
                         break;
                     case ConnectionKeepAlive:
                         break;
                     case ReturnTypeComplete:
                         OnComplete?.Invoke();
-                        await Disconnect();
+                        Disconnect();
                         break;
                     default:
                         isRunning = false;
                         OnError?.Invoke(new Error(GQLSubscriptionErrorType.UnhandledResponseType, new[] {$"Unhandled type: {json["type"]}"}));
-                        await Disconnect();
+                        Disconnect();
                         break;
                 }
             }
         }
 
-        public async Task Disconnect() {
-            await Stop();
+        public async void Disconnect() {
             try {
                 var request       = new {type = CommandTerminate};
                 var requestString = JsonConvert.SerializeObject(request);
                 var requestArray  = new ArraySegment<byte>(Encoding.UTF8.GetBytes(requestString));
+                isRunning = false;
                 await socket.SendAsync(requestArray, WebSocketMessageType.Text, true, default);
             } catch (Exception ex) {
                 OnError?.Invoke(new Error(GQLSubscriptionErrorType.Disconnect, ex.Message));
             }
         }
 
-        private async Task Stop() {
-            if (!isRunning)
-                return;
-            try {
-                var request       = new {type = CommandStop};
-                var requestString = JsonConvert.SerializeObject(request);
-                var requestArray  = new ArraySegment<byte>(Encoding.UTF8.GetBytes(requestString));
-                await socket.SendAsync(requestArray, WebSocketMessageType.Text, true, default);
-            } catch (Exception ex) {
-                OnError?.Invoke(new Error(GQLSubscriptionErrorType.Stop, ex.Message));
-            }
-        }
-
-        public Action OnComplete;
-
-        public Action<Receive> OnReceive;
-
-        public Action<Error> OnError;
+//        public async Task Stop() {
+//            if (!isRunning)
+//                return;
+//            try {
+//                var request       = new {type = CommandStop};
+//                var requestString = JsonConvert.SerializeObject(request);
+//                var requestArray  = new ArraySegment<byte>(Encoding.UTF8.GetBytes(requestString));
+//                await socket.SendAsync(requestArray, WebSocketMessageType.Text, true, default);
+//            } catch (Exception ex) {
+//                OnError?.Invoke(new Error(GQLSubscriptionErrorType.Stop, ex.Message));
+//            }
+//        }
     }
 }
