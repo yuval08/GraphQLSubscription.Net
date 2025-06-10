@@ -1,39 +1,44 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
-namespace GQLSubscription {
-    public class Message<T> where T : class {
-        [JsonProperty("id")] public string ID { get; set; }
+namespace GQLSubscription;
 
-        [JsonProperty("type")] public string Type { get; set; }
+public sealed class Message<T> where T : class {
+    [JsonPropertyName("id")]
+    public required string Id { get; init; }
 
-        [JsonProperty("payload")] public T Payload { get; set; }
-    }
+    [JsonPropertyName("type")]
+    public required string Type { get; init; }
 
-    public class ConnectionMessage {
-        [JsonProperty("message")] public string Message { get; set; }
-    }
+    [JsonPropertyName("payload")]
+    public T? Payload { get; init; }
+}
 
-    public class Payload {
-        [JsonProperty("operationName")] public string OperationName { get; set; }
+public sealed class ConnectionMessage {
+    [JsonPropertyName("message")]
+    public required string Message { get; init; }
+}
 
-        [JsonProperty("query")] public string Query { get; set; }
+public sealed class Payload {
+    [JsonPropertyName("operationName")]
+    public string? OperationName { get; init; }
 
-        [JsonProperty("variables")] public dynamic Variables { get; set; }
-    }
+    [JsonPropertyName("query")]
+    public required string Query { get; init; }
 
-    public class Error {
-        public Error(GQLSubscriptionErrorType type, params string[] messages) {
-            Type     = type;
-            Messages = messages;
-        }
+    [JsonPropertyName("variables")]
+    public object? Variables { get; init; }
+}
 
-        public GQLSubscriptionErrorType Type { get; }
+public sealed class GqlSubscriptionError(GqlSubscriptionErrorType type, params string[] messages) {
+    public GqlSubscriptionErrorType Type     { get; } = type;
+    public string[]                 Messages { get; } = messages;
+}
 
-        public string[] Messages { get; set; }
-    }
-
-    public enum GQLSubscriptionErrorType {
-        Connection, Subscription, UnhandledResponseType, GQLError,
-        Stop, Disconnect
-    }
+public enum GqlSubscriptionErrorType {
+    Connection,
+    Subscription,
+    UnhandledResponseType,
+    GqlError,
+    Stop,
+    Disconnect
 }

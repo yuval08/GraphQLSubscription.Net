@@ -1,20 +1,38 @@
 using System;
+using System.Text.Json.Serialization;
 
-namespace Example {
-    public class Data {
-        public string     ID         { get; set; }
-        public DataObject Object     { get; set; }
-        public string     Entry      { get; set; }
-        public DateTime   CreateDate { get; set; }
-        public DateTime   UpdateDate { get; set; }
-        public string     Status     { get; set; }
-    }
+namespace Example;
 
-    // ReSharper disable once ClassNeverInstantiated.Global
-    public class DataObject {
-        public string ID   { get; set; }
-        public string Code { get; set; }
-        public string Name { get; set; }
-        public string Type { get; set; }
-    }
+public sealed class Data {
+    [JsonPropertyName("id")]
+    public required string Id { get; init; }
+
+    [JsonPropertyName("object")]
+    public DataObject? Object { get; init; }
+
+    [JsonPropertyName("entry")]
+    public required string Entry { get; init; }
+
+    [JsonPropertyName("createDate")]
+    public DateTime CreateDate { get; init; }
+
+    [JsonPropertyName("updateDate")]
+    public DateTime UpdateDate { get; init; }
+
+    [JsonPropertyName("status")]
+    public required string Status { get; init; }
+}
+
+public sealed class DataObject {
+    [JsonPropertyName("id")]
+    public required string Id { get; init; }
+
+    [JsonPropertyName("code")]
+    public required string Code { get; init; }
+
+    [JsonPropertyName("name")]
+    public required string Name { get; init; }
+
+    [JsonPropertyName("type")]
+    public required string Type { get; init; }
 }
